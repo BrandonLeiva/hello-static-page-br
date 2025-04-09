@@ -1,0 +1,30 @@
+name: Build y push a una imagen de Django App con docker compose
+
+on: 
+  push:
+    branches:
+      branches: ["test"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Login a GitHub
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build
+      run: docker-compose build app 
+    
+    - name: Tagear y pushear la imagen
+      run: |
+        IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
+        docker tag djangorest_crud_app $IMAGE_NAME
+        docker push $IMAGE_NAME
